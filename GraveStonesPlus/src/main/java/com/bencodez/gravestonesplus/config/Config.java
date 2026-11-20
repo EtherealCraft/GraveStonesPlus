@@ -297,4 +297,24 @@ public class Config extends YMLFile {
 	@Getter
 	@ConfigDataString(path = "Format.Grave.Bottom")
 	private String formatGraveBottom = "Reason: %reason%";
+
+	@Getter
+	@ConfigDataString(path = "Format.GravesCommand.Header")
+	private String formatGravesCommandHeader = "Current graves:";
+
+	@Getter
+	@ConfigDataString(path = "Format.GravesCommand.HeaderOther")
+	private String formatGravesCommandHeaderOther = "Current graves for %player%:";
+
+	@Getter
+	@ConfigDataString(path = "Format.GravesCommand.Entry")
+	private String formatGravesCommandEntry = "Location: %world% (%x%,%y%,%z%) Time of death: %time%";
+
+	@Getter
+	@ConfigDataString(path = "Format.GravesCommand.NoGraves")
+	private String formatGravesCommandNoGraves = "";
+
+	@Getter
+	@ConfigDataString(path = "Format.GravesCommand.TimeFormat")
+	private String formatGravesCommandTimeFormat = "";
 }

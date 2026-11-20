@@ -188,3 +188,16 @@ Format:
     Top: '%player% died here!'
     Middle: 'Died at %time%'
     Bottom: 'Reason: %reason%'
+
+  # Output of /gravestonesplus graves and /gravestonesplus graves (player)
+  GravesCommand:
+    # Header placeholders: %player%, %amount%. Leave empty to hide the header.
+    Header: 'Current graves:'
+    HeaderOther: 'Current graves for %player%:'
+    # One line per grave. Placeholders: %number%, %player%, %world%, %x%, %y%, %z%, %time%, %reason%
+    Entry: 'Location: %world% (%x%,%y%,%z%) Time of death: %time%'
+    # Sent instead of the header when there are no graves. Leave empty to just show the header.
+    # Placeholders: %player%, %amount%
+    NoGraves: ''
+    # Java SimpleDateFormat pattern for %time%, e.g. 'MMM d, h:mm a'. Leave empty for the default.
+    TimeFormat: ''

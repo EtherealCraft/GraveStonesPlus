@@ -1,6 +1,7 @@
 package com.bencodez.gravestonesplus.graves;
 
 import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -423,6 +424,41 @@ public class Grave {
 		Location loc = gravesConfig.getLocation();
 		return "Location: " + loc.getWorld().getName() + " (" + loc.getBlockX() + "," + loc.getBlockY() + ","
 				+ loc.getBlockZ() + ") Time of death: " + new Date(gravesConfig.getTime());
+	}
+
+	/**
+	 * Formats this grave as a line for the graves command, using
+	 * Format.GravesCommand.Entry and Format.GravesCommand.TimeFormat.
+	 *
+	 * @param number 1-based position of this grave in the list
+	 * @return Formatted line (not colorized)
+	 */
+	public String getGravesCommandEntry(int number) {
+		Location loc = gravesConfig.getLocation();
+		HashMap<String, String> placeholders = new HashMap<String, String>();
+		placeholders.put("number", "" + number);
+		placeholders.put("player", "" + gravesConfig.getPlayerName());
+		placeholders.put("world",
+				loc != null && loc.getWorld() != null ? loc.getWorld().getName() : "unknown");
+		placeholders.put("x", loc != null ? "" + loc.getBlockX() : "?");
+		placeholders.put("y", loc != null ? "" + loc.getBlockY() : "?");
+		placeholders.put("z", loc != null ? "" + loc.getBlockZ() : "?");
+		placeholders.put("time", formatGravesCommandTime(gravesConfig.getTime()));
+		placeholders.put("reason", gravesConfig.getDeathMessage() != null ? gravesConfig.getDeathMessage() : "");
+		return PlaceholderUtils.replacePlaceHolder(plugin.getConfigFile().getFormatGravesCommandEntry(),
+				placeholders);
+	}
+
+	private String formatGravesCommandTime(long time) {
+		String pattern = plugin.getConfigFile().getFormatGravesCommandTimeFormat();
+		if (pattern != null && !pattern.isEmpty()) {
+			try {
+				return new SimpleDateFormat(pattern).format(new Date(time));
+			} catch (IllegalArgumentException e) {
+				plugin.debug("Invalid Format.GravesCommand.TimeFormat '" + pattern + "': " + e.getMessage());
+			}
+		}
+		return "" + new Date(time);
 	}
 
 	public boolean isOwner(String player) {

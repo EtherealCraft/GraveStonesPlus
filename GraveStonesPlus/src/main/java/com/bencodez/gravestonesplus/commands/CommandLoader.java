@@ -24,10 +24,12 @@ import org.bukkit.persistence.PersistentDataType;
 
 import com.bencodez.advancedcore.api.command.CommandHandler;
 import com.bencodez.advancedcore.api.inventory.BInventory;
+import com.bencodez.advancedcore.api.messages.PlaceholderUtils;
 import com.bencodez.gravestonesplus.GraveStonesPlus;
 import com.bencodez.gravestonesplus.events.GraveRemoveReason;
 import com.bencodez.gravestonesplus.graves.Grave;
 import com.bencodez.gravestonesplus.storage.GravesConfig;
+import com.bencodez.simpleapi.messages.MessageAPI;
 
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -36,6 +38,37 @@ public class CommandLoader {
 
 	public CommandLoader(GraveStonesPlus plugin) {
 		this.plugin = plugin;
+	}
+
+	/**
+	 * Builds the /gravestonesplus graves output from the Format.GravesCommand
+	 * config section.
+	 *
+	 * @param graves     Graves to list
+	 * @param header     Header format (%player% and %amount% supported); blank to
+	 *                   omit
+	 * @param playerName Name used for %player% in the header and no-graves line
+	 * @return Message lines
+	 */
+	private ArrayList<String> buildGravesList(List<Grave> graves, String header, String playerName) {
+		HashMap<String, String> placeholders = new HashMap<String, String>();
+		placeholders.put("player", playerName);
+		placeholders.put("amount", "" + graves.size());
+
+		ArrayList<String> msg = new ArrayList<String>();
+		String noGraves = plugin.getConfigFile().getFormatGravesCommandNoGraves();
+		if (graves.isEmpty() && noGraves != null && !noGraves.isEmpty()) {
+			msg.add(MessageAPI.colorize(PlaceholderUtils.replacePlaceHolder(noGraves, placeholders)));
+			return msg;
+		}
+		if (header != null && !header.isEmpty()) {
+			msg.add(MessageAPI.colorize(PlaceholderUtils.replacePlaceHolder(header, placeholders)));
+		}
+		int number = 1;
+		for (Grave gr : graves) {
+			msg.add(MessageAPI.colorize(gr.getGravesCommandEntry(number++)));
+		}
+		return msg;
 	}
 
 	public ArrayList<TextComponent> helpText(CommandSender sender) {
@@ -132,12 +165,8 @@ public class CommandLoader {
 			@Override
 			public void execute(CommandSender sender, String[] args) {
 				List<Grave> graves = plugin.getGraves((Player) sender);
-				ArrayList<String> msg = new ArrayList<String>();
-				msg.add("Current graves:");
-				for (Grave gr : graves) {
-					msg.add(gr.getGraveMessage());
-				}
-				sendMessage(sender, msg);
+				sendMessage(sender, buildGravesList(graves,
+						plugin.getConfigFile().getFormatGravesCommandHeader(), sender.getName()));
 			}
 		});
 
@@ -229,12 +258,8 @@ public class CommandLoader {
 			@Override
 			public void execute(CommandSender sender, String[] args) {
 				List<Grave> graves = plugin.getGraves(args[1]);
-				ArrayList<String> msg = new ArrayList<String>();
-				msg.add("Current graves for " + args[1] + ":");
-				for (Grave gr : graves) {
-					msg.add(gr.getGraveMessage());
-				}
-				sendMessage(sender, msg);
+				sendMessage(sender, buildGravesList(graves,
+						plugin.getConfigFile().getFormatGravesCommandHeaderOther(), args[1]));
 			}
 		});
 

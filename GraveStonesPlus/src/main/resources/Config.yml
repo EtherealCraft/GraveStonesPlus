@@ -84,6 +84,10 @@ GlowingEffect:
 # =========================================================
 
 Breaking:
+  # Allow right-clicking a grave to break/claim it (same rules as left-click).
+  # Sneak + right-click still shows the grave info message.
+  RightClickToClaim: true
+
   Default:
     # Require repeated hits instead of instant break/claim
     RequireBreakTime: false

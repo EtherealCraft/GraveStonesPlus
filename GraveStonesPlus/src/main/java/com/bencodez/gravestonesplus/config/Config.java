@@ -85,6 +85,10 @@ public class Config extends YMLFile {
 	}
 
 	@Getter
+	@ConfigDataBoolean(path = "Breaking.RightClickToClaim")
+	private boolean rightClickToClaim = true;
+
+	@Getter
 	@ConfigDataBoolean(path = "Breaking.Own.RequireBreakTime", secondPath = "Breaking.Default.RequireBreakTime")
 	private boolean breakOwnGraveRequireBreakTime = false;
 

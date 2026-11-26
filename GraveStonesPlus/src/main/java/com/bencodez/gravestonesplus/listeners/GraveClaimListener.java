@@ -17,6 +17,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.RayTraceResult;
 
 import com.bencodez.advancedcore.api.misc.MiscUtils;
@@ -276,10 +277,38 @@ public class GraveClaimListener implements Listener {
 	 * @param grave the grave
 	 */
 	private void handleRightClick(PlayerInteractEvent event, Grave grave) {
-		GraveInteractEvent ge = new GraveInteractEvent(grave, event.getPlayer(), GraveInteractionType.RIGHT_CLICK);
+		Player player = event.getPlayer();
+		boolean claimMode = plugin.getConfigFile().isRightClickToClaim() && !player.isSneaking();
+
+		if (claimMode && event.getHand() == EquipmentSlot.OFF_HAND) {
+			// Only the main-hand interaction claims; the off-hand duplicate is ignored.
+			event.setCancelled(true);
+			return;
+		}
+
+		GraveInteractEvent ge = new GraveInteractEvent(grave, player, GraveInteractionType.RIGHT_CLICK);
 		Bukkit.getPluginManager().callEvent(ge);
 		if (ge.isCancelled()) {
 			event.setCancelled(true);
+			return;
+		}
+
+		if (claimMode) {
+			// Never open/place/use anything when right-clicking a grave marker.
+			event.setCancelled(true);
+
+			// Shares the left-click dedupe window, so a chest right-click that also fires
+			// an arm-swing animation is only processed once.
+			if (isDuplicateAttempt(player, grave)) {
+				return;
+			}
+
+			// Holding right-click repeats roughly every 4 ticks, which keeps
+			// break-time progress alive the same way held left-click does.
+			mining.put(player.getUniqueId(), grave);
+			lastSwing.put(player.getUniqueId(), Long.valueOf(System.currentTimeMillis()));
+
+			handleClaiming(grave, player);
 			return;
 		}
 
